@@ -1,4 +1,12 @@
-if (5 > 1) {
-    "Did you sell a house in 2010?"
-       hasSoldHouse: boolean
+form taxOfficeExample { 
+  "Did you buy a house in 2010?"
+    hasBoughtHouse: boolean
+    
+  "Did you enter a loan?"
+    hasMaintLoan: boolean
+    
+  if (hasSoldHouse) {
+    "What was the selling price?"
+      sellingPrice: integer = valueResidue
   }
+}
