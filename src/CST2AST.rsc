@@ -16,14 +16,23 @@ import String;
  * - See the ref example on how to obtain and propagate source locations.
  */
 
-AForm cst2ast(start[Form] sf) {
-  Form f = sf.top; // remove layout before and after form
-  return form("", [], src=f@\loc); 
-}
-
-AQuestion cst2ast(Question q) {
-  throw "Not yet implemented";
-}
+AForm cst2ast(start[Form] sf)
+  = cst2ast(sf.top);
+  
+AForm cst2ast((Form)`form <Id name> { <Question* qq> }`)
+	= form(id("<name>"),[ cst2ast(q) | Question q <- qq]);
+  
+AQuestion cst2ast((Question)` <Str question> <Id param> : <Type t>`) 
+	= question(string("<question>"), id("<param>"), typ("<t>"));
+	
+AQuestion cst2ast((Question)` <Str question> <Id param> : <Type t> = <Expr exp>`) 
+	= compQuestion(string("<question>"), id("<param>"), typ("<t>"), cst2ast(exp));
+	
+AQuestion cst2ast((Question)` if (<Expr exp>) { <Question* qq> }`) 
+	= ifStatement(string("<question>"), id("<param>"), typ("<t>"));
+	
+AQuestion cst2ast((Question)` if (<Expr exp>) { <Question* ifqq> } else { <Question* elseqq> }`) 
+	= ifElseStatement(string("<question>"), id("<param>"), typ("<t>"));
 
 AExpr cst2ast(Expr e) {
   switch (e) {
@@ -35,6 +44,4 @@ AExpr cst2ast(Expr e) {
   }
 }
 
-AType cst2ast(Type t) {
-  throw "Not yet implemented";
-}
+AType cst2ast((Type)`<Type t>`) = typ("test");
