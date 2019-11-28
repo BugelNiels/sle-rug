@@ -20,8 +20,8 @@ data AQuestion(loc src = |tmp:///|)
 
 data AExpr(loc src = |tmp:///|)
   = ref(AId id)
-  | integer(AInt vali)
-  | boolean(ABool valb)
+  | integer(int vali)
+  | boolean(str valb)
   | brackets(AExpr expr)
   | mult(AExpr left, AExpr right)
   | div(AExpr left, AExpr right)
@@ -38,16 +38,10 @@ data AExpr(loc src = |tmp:///|)
 data AId(loc src = |tmp:///|)
   = id(str name);
   
-data AInt(loc src = |tmp:///|)
-  = integer(int val);
-  
-data AString(loc src = |tmp:///|)
-  = string(str text);
-
-data ABool(loc src = |tmp:///|)
-  = boolean(str val);
-
 data AType(loc src = |tmp:///|)
-  = typ(str t);
+  = integer()
+  | boolean()
+  | string()
+  ;
   
 
