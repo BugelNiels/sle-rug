@@ -20,6 +20,45 @@ syntax Question
 // and use C/Java style precedence rules (look it up on the internet)
 syntax Expr 
   = Id \ "true" \ "false" // true/false are reserved keywords.
+  | ValExpr
+  | BoolExpr
+  ;
+
+syntax ValExpr
+  =  "(" ValExpr ")"
+  | ValExpr "+" ValExpr
+  | ValExpr "-" ValExpr
+  | Term
+  ;
+
+syntax BoolExpr
+  = "(" BoolExpr ")"
+  | "!" BoolExpr
+  | BoolExpr "&&" BoolExpr
+  | BoolExpr "||" BoolExpr
+  | Bool  
+  ;
+  
+syntax Disjunction
+  = Conjunction "||" Conjunction
+  | Conjunction
+  ;  
+  
+syntax Conjunction
+  = Disjunction "&&" Disjunction
+  | Disjunction
+  ;
+  
+syntax Literal
+  = Bool
+  | "!" Bool
+  ;
+    
+
+syntax Term
+  = Term "*" Term
+  | Term "/" Term  
+  | Int
   ;
   
 syntax Type
@@ -30,7 +69,10 @@ lexical Str = ;
 lexical Int 
   = ;
 
-lexical Bool = ;
+lexical Bool
+  = "True"
+  | "False"
+  | Disjunction;
 
 
 
