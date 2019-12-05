@@ -19,6 +19,9 @@ import String;
 AForm cst2ast(start[Form] sf)
   = cst2ast(sf.top);
 
+AForm cst2ast((Form)`form <Id name> { <Question* qq> }`) 
+	= form("<name>",[ cst2ast(q) | Question q <- qq ],src=f@\loc);
+
 AQuestion cst2ast(Question q) {
   switch (q) {
   	case (Question)`<Str q1> <Id param> : <Type t>`:
