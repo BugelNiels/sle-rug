@@ -32,10 +32,10 @@ AQuestion cst2ast(Question q) {
   		return question("<q1>", "<param>", cst2ast(t), src=q@\loc);
   	case (Question)`<Str q1> <Id param> : <Type t> = <Expr exp>`: 
 		return compQuestion("<q1>", "<param>", cst2ast(t), cst2ast(exp), src=q@\loc);
-	case (Question)` if (<Expr exp>) { <Question* qq> }`: 
-		return ifStatement(cst2ast(exp), [cst2ast(q) | q <- qq], src=q@\loc);
-	case (Question)` if (<Expr exp>) { <Question* ifqq> } else { <Question* elseqq> }`: 
-		return ifElseStatement(cst2ast(exp), [cst2ast(q) | q <- ifqq], [cst2ast(q) | q <- elseqq], src=q@\loc);
+	case (Question)`if ( <Expr exp> ) { <Question* qq> }`: 
+		return ifStatement(cst2ast(exp), [cst2ast(q1) | q1 <- qq], src=q@\loc);
+	case (Question)`if ( <Expr exp> ) { <Question* ifqq> } else { <Question* elseqq> }`: 
+		return ifElseStatement(cst2ast(exp), [cst2ast(q1) | q1 <- ifqq], [cst2ast(q2) | q2 <- elseqq], src=q@\loc);
 
     default: throw "Unhandled question: <q>";
   }
@@ -44,8 +44,8 @@ AQuestion cst2ast(Question q) {
 AExpr cst2ast(Expr e) {
   switch (e) {
     case (Expr)`<Id x>`                      : return ref("<x>", src=x@\loc);
-    case (Expr)`<Int i>`                     : return integer("<i>", src=i@\loc);
-    case (Expr)`<Bool b>`                    : return boolean("<b>", src=b@\loc);    
+    case (Expr)`<Int i>`                     : return integer(toInt("<i>"), src=i@\loc);
+    case (Expr)`<Bool b>`                    : return boolean(fromString("<b>"), src=b@\loc);    
     case (Expr)`(<Expr exp>)`                : return brackets(cst2ast(exp), src=e@\loc);
     case (Expr)`<Expr left> * <Expr right>`  : return mult(cst2ast(left), cst2ast(right), src=e@\loc);
     case (Expr)`<Expr left> / <Expr right>`  : return div(cst2ast(left), cst2ast(right), src=e@\loc);
