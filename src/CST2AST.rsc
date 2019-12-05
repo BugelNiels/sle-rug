@@ -50,6 +50,8 @@ AExpr cst2ast(Expr e) {
     case (Expr)`<Expr left> \<= <Expr right>`: return leq(cst2ast(left), cst2ast(right), src=e@\loc);
     case (Expr)`<Expr left> == <Expr right>` : return eq(cst2ast(left), cst2ast(right), src=e@\loc);
     case (Expr)`<Expr left> != <Expr right>` : return neq(cst2ast(left), cst2ast(right), src=e@\loc);
+    case (Expr)`<Expr left> && <Expr right>` : return conj(cst2ast(left), cst2ast(right), src=e@\loc);
+    case (Expr)`<Expr left> || <Expr right>` : return disj(cst2ast(left), cst2ast(right), src=e@\loc);
     
     default: throw "Unhandled expression: <e>";
   }
