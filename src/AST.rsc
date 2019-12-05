@@ -8,18 +8,18 @@ module AST
  */
 
 data AForm(loc src = |tmp:///|)
-  = form(str id, list[AQuestion] questions)
+  = form(AId id, list[AQuestion] questions)
   ; 
 
 data AQuestion(loc src = |tmp:///|)
-  = question(str ques, str param, AType t)
-  | compQuestion(str ques, str param, AType t, AExpr exp)
+  = question(str ques, AId param, AType t)
+  | compQuestion(str ques, AId param, AType t, AExpr exp)
   | ifStatement(AExpr exp, list[AQuestion] questions)
   | ifElseStatement(AExpr exp, list[AQuestion] ifQuestions, list[AQuestion] elseQuestions)
   ; 
 
 data AExpr(loc src = |tmp:///|)
-  = ref(str id)
+  = ref(AId id)
   | integer(int vali)
   | boolean(bool valb)
   | brackets(AExpr expr)
@@ -35,8 +35,8 @@ data AExpr(loc src = |tmp:///|)
   | neq(AExpr left, AExpr right)
   ;
 
-//data AId(loc src = |tmp:///|)
-//  = id(str name);
+data AId(loc src = |tmp:///|)
+  = id(str name);
 
 data AType(loc src = |tmp:///|)
   = integer()
