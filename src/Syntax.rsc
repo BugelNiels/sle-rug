@@ -35,9 +35,12 @@ syntax Expr
   > left ( left Expr l "\>" Expr r
   		 | Expr l "\<" Expr r
   		 | Expr l "\>=" Expr r
-  		 | Expr l "\<=" Expr r
-  		 | Expr l "==" Expr r
+  		 | Expr l "\<=" Expr r)
+  > left (left Expr l "==" Expr r
   		 | Expr l "!=" Expr r
+  		 )
+  > left (left Expr l "&&" Expr r
+  		 | Expr l "||" Expr r  
   		 )
   ;
   
