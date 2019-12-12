@@ -11,6 +11,11 @@ data Type
   | tstr()
   | tunknown()
   ;
+  
+Type resolveType(booleanType()) = tbool();
+Type resolveType(integerType()) = tint();
+Type resolveType(stringType()) = tstr();
+default Type resolveType(AType _) = tunknown();
 
 // the type environment consisting of defined questions in the form 
 alias TEnv = rel[loc def, str name, str label, Type \type];
@@ -18,7 +23,7 @@ alias TEnv = rel[loc def, str name, str label, Type \type];
 // To avoid recursively traversing the form, use the `visit` construct
 // or deep match (e.g., `for (/question(...) := f) {...}` ) 
 TEnv collect(AForm f) {
-  return {<ques.src, ques.id, ques.lbl, resolveType(ques.questionType)> | /AQuestion ques := f.questions, ques has id}; 
+  return {<q.src, q.param.name, q.ques, resolveType(q.t)> | /AQuestion q := f.questions, q has param};
 }
 
 set[Message] check(AForm f, TEnv tenv, UseDef useDef) {
@@ -34,7 +39,7 @@ set[Message] check(AForm f, TEnv tenv, UseDef useDef) {
 set[Message] check(AQuestion q, TEnv tenv, UseDef useDef) {
   return
   	{ error("Question <q.id> already exists with a different type", q.src) | q has id, size(tenv[_, q.id, _]) >= 2 }
-  	+ { warning("Duplicate label <q.lbl> found", q.src) | q has lbl, size((tenv<2,0>)[q.lbl] >= 2) }
+  	+ { warning("Duplicate label <q.lbl> found", q.src) | q has lbl, size((tenv<2,0>)[q.ques] >= 2) }
   	+ { error("The declared type of the computed question <q.id> does not match the type of the expression", q.src) | q has computedExpr, resolveType(q.questionType) != typeOf(q.computedExpr, tenv, useDef) };
 }
 
