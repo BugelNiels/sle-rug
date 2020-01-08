@@ -4,6 +4,7 @@ import AST;
 import Resolve;
 import IO;
 import lang::html5::DOM; // see standard library
+import util::Math;
 
 /*
  * Implement a compiler for QL to HTML and Javascript
@@ -49,8 +50,11 @@ HTML5Node question2html(AQuestion q) {
 		return questionInput2html(q, false);
 	case compQuestion(str ques, AId param, AType t, AExpr exp): 
 		return questionInput2html(q, true);
-	case ifStatement(AExpr exp, list[AQuestion] qq):
-		return parseQuestions2html(qq, div());
+	case ifStatement(AExpr exp, list[AQuestion] qq): {
+		parentDiv = div(id("if-" + exp2html(exp)));
+		
+		return parseQuestions2html(qq, parentDiv);
+		}
 	case ifElseStatement(AExpr exp, list[AQuestion] ifQuestions, list[AQuestion] elseQuestions):{
 		ifDiv = parseQuestions2html(ifQuestions, div());
 		elseDiv = parseQuestions2html(elseQuestions, div());
@@ -65,6 +69,29 @@ HTML5Node question2html(AQuestion q) {
   return div();
 }
 
+str exp2html(exp){
+	switch (exp) {
+	    case ref(AId id): 					return "ref:"+id.name;
+	    case integer(int n): 				return "int:"+toString(n);
+	    case boolean(bool b): 				return "bool:"+toString(b);
+	    case brackets(AExpr e): 			return "("+ exp2html(e) + ")";
+	    case mult(AExpr l, AExpr r): 		return exp2html(l) + "*" + exp2html(r);
+	    case div(AExpr l, AExpr r): 		return exp2html(l) + "/" + exp2html(r);
+	    case add(AExpr l, AExpr r): 		return exp2html(l) + "+" + exp2html(r);
+	    case subtract(AExpr l, AExpr r): 	return exp2html(l) + "-" + exp2html(r);
+		case greater(AExpr l, AExpr r): 	return exp2html(l) + "\>" + exp2html(r);
+		case less(AExpr l, AExpr r): 		return exp2html(l) + "\<" + exp2html(r);
+		case greq(AExpr l, AExpr r): 		return exp2html(l) + "\>=" + exp2html(r);
+		case les(AExpr l, AExpr r): 		return exp2html(l) + "\<=" + exp2html(r);
+		case eq(AExpr l, AExpr r): 			return exp2html(l) + "==" + exp2html(r);
+		case neq(AExpr l, AExpr r): 		return exp2html(l) + "!=" + exp2html(r);
+		case conj(AExpr l, AExpr r): 		return exp2html(l) + "&&" + exp2html(r);
+		case disj(AExpr l, AExpr r): 		return exp2html(l) + "||" + exp2html(r);
+		
+	    
+	    default:throw "Unsupported expression <exp>";
+  }
+}
 
 HTML5Node questionInput2html(AQuestion q, bool dis) {
 	HTML5Attr inputType;
