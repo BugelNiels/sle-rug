@@ -28,6 +28,7 @@ HTML5Node form2html(AForm f) {
   return html(
   	head(
   		title(f.id.name),
+  		script(src("https://code.jquery.com/jquery-3.4.1.min.js")),
   		script(src(f.src[extension="js"].file))
   	),
   	body(
@@ -56,8 +57,8 @@ HTML5Node question2html(AQuestion q) {
 		return parseQuestions2html(qq, parentDiv);
 		}
 	case ifElseStatement(AExpr exp, list[AQuestion] ifQuestions, list[AQuestion] elseQuestions):{
-		ifDiv = parseQuestions2html(ifQuestions, div());
-		elseDiv = parseQuestions2html(elseQuestions, div());
+		ifDiv = parseQuestions2html(ifQuestions, div(id("if-" + exp2html(exp))));
+		elseDiv = parseQuestions2html(elseQuestions, div(id("else-" + exp2html(exp))));
 		parentDiv = div();
 		parentDiv.kids += [ifDiv, elseDiv];
 		return parentDiv;
@@ -71,9 +72,9 @@ HTML5Node question2html(AQuestion q) {
 
 str exp2html(exp){
 	switch (exp) {
-	    case ref(AId id): 					return "ref:"+id.name;
-	    case integer(int n): 				return "int:"+toString(n);
-	    case boolean(bool b): 				return "bool:"+toString(b);
+	    case ref(AId id): 					return id.name;
+	    case integer(int n): 				return toString(n);
+	    case boolean(bool b): 				return toString(b);
 	    case brackets(AExpr e): 			return "("+ exp2html(e) + ")";
 	    case mult(AExpr l, AExpr r): 		return exp2html(l) + "*" + exp2html(r);
 	    case div(AExpr l, AExpr r): 		return exp2html(l) + "/" + exp2html(r);
@@ -107,9 +108,9 @@ HTML5Node questionInput2html(AQuestion q, bool dis) {
 	
 	HTML5Node inputLabel;
 	if(dis){
-		inputLabel = input(inputType, name("<q.param.name>"), disabled("disabled"));
+		inputLabel = input(inputType, name("<q.param.name>"), id("<q.param.name>"), disabled("disabled"));
 	}else{
-		inputLabel = input(inputType, name("<q.param.name>"));
+		inputLabel = input(inputType, name("<q.param.name>"), id("<q.param.name>"));
 	}
 	
 	return div(
@@ -120,5 +121,123 @@ HTML5Node questionInput2html(AQuestion q, bool dis) {
 }
 
 str form2js(AForm f) {
+  return hideFunction() + allVariables2js(f.questions) + "console.log(\'start\');\n" + parseAllQuestions2js(f.questions);
+}
+
+str hideFunction(){
+	return "function hideDiv(divId, hide){
+	var x = document.getElementById(divId);
+	if (!hide) {
+		x.style.display = \"block\";
+	} else {
+		x.style.display = \"none\";
+	}
+}\n" ;
+}
+
+str parseAllQuestions2js(list[AQuestion] qq){
+	str newData = "$(function(){
+   $(\':input\').change(function(e){
+   		updateValues();
+   	});
+});
+function updateValues(){\n";
+	newData += parseQuestions2js(qq);
+	newData += "}
+$( document ).ready(function() {
+	updateValues();
+    console.log(\"ready!\" );
+});\n";
+	return newData;
+}
+
+str parseQuestions2js(list[AQuestion] qq) {
+	str newData = "";
+	for(AQuestion q <- qq){
+		newData += question2js(q);
+	}
+	return newData;
+}
+
+str question2js(AQuestion q) {
+  switch(q) {
+  	case question(str ques, AId param, AType t):
+  		return param.name + " = document.getElementById(\'"+ param.name +"\')." + type2jsInput(t) + ";\n";
+	case compQuestion(str ques, AId param, AType t, AExpr exp): 
+		return param.name + " = "+ exp2html(exp) + ";
+		document.getElementById(\'"+ param.name +"\')." + type2jsInput(t) + " = " + param.name + ";\n";
+	case ifStatement(AExpr exp, list[AQuestion] qq): {
+		ifPart = parseQuestions2js(qq);
+		str expStr =  exp2html(exp);
+		parentPart =  "
+	if(" + expStr + "){
+		hideDiv(\'if-"+ expStr+"\',false);
+	}else{
+		hideDiv(\'if-"+ expStr+"\',true);
+	}\n";
+		return parentPart + ifPart; 
+		}
+	case ifElseStatement(AExpr exp, list[AQuestion] ifQuestions, list[AQuestion] elseQuestions):{
+		ifPart = parseQuestions2js(ifQuestions);
+		elsePart = parseQuestions2js(elseQuestions);
+		parentPart = "
+	if(" + exp2html(exp) + "){
+		console.log(\'if\'));
+	}else{
+		console.log(\'else\')
+	}\n";
+		return parentPart + ifPart + elsePart;
+		}
+	default: 
+		return "";
+  }
+  
   return "";
+}
+
+str allVariables2js(list[AQuestion] qq) {
+	str newData = "";
+	for(AQuestion q <- qq){
+		newData += variables2js(q);
+	}
+	return newData;
+}
+
+str variables2js(AQuestion q) {
+  switch(q) {
+  	case question(str ques, AId param, AType t): 
+		return "var " + param.name + " = " + type2js(t) + ";\n";
+	case compQuestion(str ques, AId param, AType t, AExpr exp): 
+		return "var " + param.name + " = " + type2js(t) + ";\n";
+	case ifStatement(AExpr exp, list[AQuestion] qq): {
+		return allVariables2js(qq); 
+		}
+	case ifElseStatement(AExpr exp, list[AQuestion] ifQuestions, list[AQuestion] elseQuestions):{
+		ifPart = allVariables2js(ifQuestions);
+		elsePart = allVariables2js(elseQuestions);
+		return ifPart + elsePart;
+		}
+	default: 
+		return "";
+  }
+  
+  return "";
+}
+
+str type2js(AType t){
+	switch(t){
+		case integer(): return "0";
+		case boolean(): return "false";
+		case string(): return "";
+		default: return "";
+	}
+}
+
+str type2jsInput(AType t){
+	switch(t){
+		case integer(): return "value";
+		case boolean(): return "checked";
+		case string(): return "value";
+		default: return "";
+	}
 }
