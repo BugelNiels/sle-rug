@@ -29,7 +29,8 @@ HTML5Node form2html(AForm f) {
   	head(
   		title(f.id.name),
   		script(src("https://code.jquery.com/jquery-3.4.1.min.js")),
-  		script(src(f.src[extension="js"].file))
+  		script(src(f.src[extension="js"].file)),
+  		link(\rel("stylesheet"), src("https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"))
   	),
   	body(
   	  parseQuestions2html(f.questions, div(id("questions")))
@@ -169,23 +170,14 @@ str question2js(AQuestion q) {
 	case ifStatement(AExpr exp, list[AQuestion] qq): {
 		ifPart = parseQuestions2js(qq);
 		str expStr =  exp2html(exp);
-		parentPart =  "
-	if(" + expStr + "){
-		hideDiv(\'if-"+ expStr+"\',false);
-	}else{
-		hideDiv(\'if-"+ expStr+"\',true);
-	}\n";
+		parentPart =  "hideDiv(\'if-"+ expStr+"\',!("+ expStr +"));\n";
 		return parentPart + ifPart; 
 		}
 	case ifElseStatement(AExpr exp, list[AQuestion] ifQuestions, list[AQuestion] elseQuestions):{
 		ifPart = parseQuestions2js(ifQuestions);
 		elsePart = parseQuestions2js(elseQuestions);
-		parentPart = "
-	if(" + exp2html(exp) + "){
-		console.log(\'if\'));
-	}else{
-		console.log(\'else\')
-	}\n";
+		parentPart = "hideDiv(\'if-"+ expStr+"\',!("+ expStr +"));
+	hideDiv(\'else-"+ expStr+"\',("+ expStr +"));\n";
 		return parentPart + ifPart + elsePart;
 		}
 	default: 
