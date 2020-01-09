@@ -3,6 +3,8 @@ module Transform
 import Syntax;
 import Resolve;
 import AST;
+import IO;
+import ParseTree;
 
 /* 
  * Transforming QL forms
@@ -68,10 +70,28 @@ list[AQuestion] flattenQuestion(AQuestion q, AExpr expr) {
  *
  */
  
- start[Form] rename(start[Form] f, loc useOrDef, str newName, UseDef useDef) {
-   return f; 
+ start[Form] rename(start[Form] f, loc useOrDef, str newName, RefGraph refs) {
+   loc def =2 ;
+   visitAll(f, newName, def, refs);
+   
  } 
  
- 
+ Form visitAll(Form f, str newName, loc defn, RefGraph refs) {
+   print("test\n");
+   Id newId = [Id]newName;
+   return visit (f) {
+     case (Expr)`<Id x>` => (Expr)`<Id newId>`
+       when <loc use, defn> <- refs.useDef,
+        use == x@\loc
+     case (Question)`<Str q1> <Id param> : <Type t>` => (Question)`<Str q1> <Id newId> : <Type t>`
+  		when <str name, defn> <- refs.defs,
+          param == [Id]name
+  	 case (Question)`<Str q1> <Id param> : <Type t> = <Expr exp>` => (Question)`<Str q1> <Id newId> : <Type t>`
+		when <str name, defn> <- refs.defs,
+          param == [Id]name
+  }
+   
+   return f;
+ }
  
 
