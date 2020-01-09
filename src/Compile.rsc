@@ -5,6 +5,7 @@ import Resolve;
 import IO;
 import lang::html5::DOM; // see standard library
 import util::Math;
+import Boolean;
 
 /*
  * Implement a compiler for QL to HTML and Javascript
@@ -77,6 +78,7 @@ str exp2html(exp){
 	    case integer(int n): 				return toString(n);
 	    case boolean(bool b): 				return toString(b);
 	    case brackets(AExpr e): 			return "("+ exp2html(e) + ")";
+	    case not(AExpr e): 					return "!"+ exp2html(e);
 	    case mult(AExpr l, AExpr r): 		return exp2html(l) + "*" + exp2html(r);
 	    case div(AExpr l, AExpr r): 		return exp2html(l) + "/" + exp2html(r);
 	    case add(AExpr l, AExpr r): 		return exp2html(l) + "+" + exp2html(r);

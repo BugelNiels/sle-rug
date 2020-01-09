@@ -52,6 +52,8 @@ set[Message] check(AExpr e, TEnv tenv, UseDef useDef) {
   switch (e) {
     case ref(AId x):
       msgs += { error("Undeclared question", x.src) | useDef[x.src] == {} };
+    case not(exp):
+      msgs += { error("Invalid negation", x.src) | typeOf(exp) != tbool() };
     case mult(lhs, rhs):
       msgs += { error("Invalid multiplication", x.src) | typeOf(lhs) != typeOf(rhs) || typeOf(lhs) != tint() };
     case div(lhs, rhs):
@@ -90,6 +92,7 @@ Type typeOf(AExpr e, TEnv tenv, UseDef useDef) {
     case integer(_): 				return tint();
     case boolean(_): 				return tbool();
     case brackets(AExpr expr):		return typeOf(expr, tenv, useDef);
+    case not(_):		   			return tbool();
     case mult(_, _):				return tint();
     case div(_, _):					return tint();
     case add(_, _):					return tint();

@@ -26,6 +26,7 @@ syntax Expr
   | Int
   | Bool
   | "(" Expr e ")"
+  | "!" Expr e
   > left (left Expr l "*" Expr r
   		 | Expr l "/" Expr r
   		 )
