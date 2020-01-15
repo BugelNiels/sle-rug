@@ -71,10 +71,18 @@ list[AQuestion] flattenQuestion(AQuestion q, AExpr expr) {
  */
  
  start[Form] rename(start[Form] f, loc useOrDef, str newName, RefGraph refs) {
+   loc def;
+   if(isEmpty(useDef[occ])) {
+     // dit moet nog :) de rest werkt dacht ik 
+     
+   } else {
+     def = toList(useDef[occ])[0];
+   }
    
+   visitAll(f, def, newName, refs);
  } 
  
- Form visitAll(Form f, str newName, loc defn, RefGraph refs) {
+ Form visitAll(Form f, loc defn, str newName,RefGraph refs) {
    Id newId = [Id]newName;
    return visit (f) {
      case (Expr)`<Id x>` 
