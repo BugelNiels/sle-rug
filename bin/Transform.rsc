@@ -5,6 +5,8 @@ import Resolve;
 import AST;
 import IO;
 import ParseTree;
+import Map;
+import Set;
 
 /* 
  * Transforming QL forms
@@ -72,13 +74,12 @@ list[AQuestion] flattenQuestion(AQuestion q, AExpr expr) {
  
  start[Form] rename(start[Form] f, loc useOrDef, str newName, RefGraph refs) {
    loc def;
-   if(isEmpty(useDef[occ])) {
-     // dit moet nog :) de rest werkt dacht ik 
+   if(isEmpty(refs.useDef[useOrDef])) {
+     def = useOrDef;
      
    } else {
-     def = toList(useDef[occ])[0];
+     def = toList(refs.useDef[useOrDef])[0];
    }
-   
    visitAll(f, def, newName, refs);
  } 
  
