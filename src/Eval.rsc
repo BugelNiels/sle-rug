@@ -91,12 +91,10 @@ VEnv eval(AQuestion q, Input inp, VEnv venv) {
 			}
 		}
 		return venv;
-	}
-	
+	}	
 	default: 
 		return venv;
-  }
-  
+  }  
   return venv;
 }
 
@@ -119,7 +117,6 @@ Value eval(AExpr e, VEnv venv) {
 	case neq(AExpr l, AExpr r): 		return vbool(eval(l, venv).n != eval(r, venv));
 	case conj(AExpr l, AExpr r): 		return vbool(eval(l, venv).n && eval(r, venv).b);
 	case disj(AExpr l, AExpr r): 		return vbool(eval(l, venv).n || eval(r, venv).b);
-	
     
     default: throw "Unsupported expression <e>";
   }

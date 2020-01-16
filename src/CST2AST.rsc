@@ -24,19 +24,19 @@ AForm cst2ast(start[Form] sf)
   = cst2ast(sf.top);
 
 AForm cst2ast(f:(Form)`form <Id name> { <Question* qq> }`) 
-	= form(cst2ast(name),[ cst2ast(q) | Question q <- qq ],src=f@\loc);
+  = form(cst2ast(name),[ cst2ast(q) | Question q <- qq ],src=f@\loc);
 
 AQuestion cst2ast(Question q) {
   switch (q) {
   	case (Question)`<Str q1> <Id param> : <Type t>`:
-  		return question("<q1>", cst2ast(param), cst2ast(t), src=q@\loc);
+  	  return question("<q1>", cst2ast(param), cst2ast(t), src=q@\loc);
   	case (Question)`<Str q1> <Id param> : <Type t> = <Expr exp>`: 
-		return compQuestion("<q1>", cst2ast(param), cst2ast(t), cst2ast(exp), src=q@\loc);
+	  return compQuestion("<q1>", cst2ast(param), cst2ast(t), cst2ast(exp), src=q@\loc);
 	case (Question)`if ( <Expr exp> ) { <Question* qq> }`: 
-		return ifStatement(cst2ast(exp), [cst2ast(q1) | q1 <- qq], src=q@\loc);
+	  return ifStatement(cst2ast(exp), [cst2ast(q1) | q1 <- qq], src=q@\loc);
 	case (Question)`if ( <Expr exp> ) { <Question* ifqq> } else { <Question* elseqq> }`: 
-		return ifElseStatement(cst2ast(exp), [cst2ast(q1) | q1 <- ifqq], [cst2ast(q2) | q2 <- elseqq], src=q@\loc);
-
+	  return ifElseStatement(cst2ast(exp), [cst2ast(q1) | q1 <- ifqq], [cst2ast(q2) | q2 <- elseqq], src=q@\loc);
+	  
     default: throw "Unhandled question: <q>";
   }
 }

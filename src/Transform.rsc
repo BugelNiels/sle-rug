@@ -47,21 +47,19 @@ list[AQuestion] flattenQuestions(list[AQuestion] qq, AExpr exp) {
 
 list[AQuestion] flattenQuestion(AQuestion q, AExpr expr) {
   switch(q) {  
-	case question(str ques, AId param, AType t): {
-		return [ifStatement(expr,[q])];
-		}
+    case question(str ques, AId param, AType t): {
+	  return [ifStatement(expr,[q])];
+	}
 	case compQuestion(str ques, AId param, AType t, AExpr exp):
-		return [ifStatement(expr,[q])];
+	  return [ifStatement(expr,[q])];
 	case ifStatement(AExpr exp, list[AQuestion] questions): { 
-		return flattenQuestions(questions,conj(expr, brackets(exp)));
+	  return flattenQuestions(questions,conj(expr, brackets(exp)));
 	}
-		
 	case ifElseStatement(AExpr exp, list[AQuestion] ifQuestions, list[AQuestion] elseQuestions): { 
-		return flattenQuestions(ifQuestions, conj(expr, brackets(exp))) + flattenQuestions(elseQuestions, conj(expr, brackets(exp)));
+	  return flattenQuestions(ifQuestions, conj(expr, brackets(exp))) + flattenQuestions(elseQuestions, conj(expr, brackets(exp)));
 	}
-	
 	default: 
-		return [];
+	  return [];
   }
 }
 
@@ -72,26 +70,37 @@ list[AQuestion] flattenQuestion(AQuestion q, AExpr expr) {
  *
  */
  
- Form rename(Form f, loc useOrDef, str newName, RefGraph refs) {
-   loc def;
-   if(isEmpty(refs.useDef[useOrDef])) {
-     def = useOrDef;
-     
-   } else {
-     def = toList(refs.useDef[useOrDef])[0];
-   }
-   return visitAll(f, def, newName, refs);
- } 
+Form rename(Form f, loc useOrDef, str newName, RefGraph refs) {
+  loc def;
+  if(isEmpty(refs.useDef[useOrDef])) {
+    def = useOrDef;
+  } else {
+    def = toList(refs.useDef[useOrDef])[0];
+  }
+  return visitAll(f, def, newName, refs);
+} 
  
- Form visitAll(Form f, loc defn, str newName,RefGraph refs) {
-   Id newId = [Id]newName;
-   return visit (f) {
-     case (Expr)`<Id x>` 
-       => (Expr)`<Id newId>`
-       
-       when 
-         <loc use, defn> <- refs.useDef,
-         use == x@\loc
+bool isValidId(str name){
+  try {
+    parse(#Id, name);
+	return true;
+  } catch: 
+      return false;
+}
+ 
+Form visitAll(Form f, loc defn, str newName,RefGraph refs) { 
+  if(!isValidId(newName)) {
+    return f;
+  }
+  
+  Id newId = [Id]newName;
+  return visit (f) {
+    case (Expr)`<Id x>` 
+      => (Expr)`<Id newId>`
+     
+      when 
+        <loc use, defn> <- refs.useDef,
+        use == x@\loc
      case (Question)`<Str q1> <Id param> : <Type t>` 
        => (Question)`<Str q1>
       				'      <Id newId> : <Type t>`
@@ -104,9 +113,8 @@ list[AQuestion] flattenQuestion(AQuestion q, AExpr expr) {
 	   when 
 	     <str name, defn> <- refs.defs,
          param == [Id]name
-  }
-   
-   return f;
- }
+  } 
+  return f;
+}
  
 
