@@ -72,7 +72,7 @@ list[AQuestion] flattenQuestion(AQuestion q, AExpr expr) {
  *
  */
  
- start[Form] rename(start[Form] f, loc useOrDef, str newName, RefGraph refs) {
+ Form rename(Form f, loc useOrDef, str newName, RefGraph refs) {
    loc def;
    if(isEmpty(refs.useDef[useOrDef])) {
      def = useOrDef;
@@ -80,7 +80,7 @@ list[AQuestion] flattenQuestion(AQuestion q, AExpr expr) {
    } else {
      def = toList(refs.useDef[useOrDef])[0];
    }
-   visitAll(f, def, newName, refs);
+   return visitAll(f, def, newName, refs);
  } 
  
  Form visitAll(Form f, loc defn, str newName,RefGraph refs) {
