@@ -88,7 +88,7 @@ bool isValidId(str name){
       return false;
 }
  
-Form visitAll(Form f, loc defn, str newName,RefGraph refs) { 
+Form visitAll(Form f, loc defn, str newName, RefGraph refs) { 
   if(!isValidId(newName)) {
     return f;
   }
